@@ -13,8 +13,8 @@ import org.koin.core.KoinComponent
 interface ClientRepository: KoinComponent {
     /**
      * @return the client identified by ClientId
-     * @throws [KataException.Companion.ClientNotFound] if the clientId can't be found.
+     * @throws [KataException.Companion.NotFound.Companion.Client] if the clientId can't be found.
      */
-    @Throws(KataException.Companion.ClientNotFound::class)
+    @Throws(KataException.Companion.NotFound.Companion.Client::class)
     fun get(clientId: ClientId): Client
 }
