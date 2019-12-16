@@ -9,4 +9,5 @@ interface AccountManager {
     fun getBalance(accountId: AccountId, authentifiedAs: UserId): MonetaryAmount
 
     fun depositCash(accountId: AccountId, authentifiedAs: UserId, amount: MonetaryAmount)
+    fun withdrawCash(accountId: AccountId, authentifiedAs: UserId, amount: MonetaryAmount)
 }

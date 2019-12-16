@@ -53,5 +53,19 @@ class AccountManagerImpl(val clientManager: ClientManager, val accountRepository
         }
     }
 
+    override fun withdrawCash(accountId: AccountId, authentifiedAs: UserId, amount: MonetaryAmount) {
+        val account = get(accountId, authentifiedAs)
+        if (account.currency != amount.currency) throw KataException.Companion.InvalidAccountCurrency(amount.currency, account.currency)
+
+        accountRepository.transactionally {
+            val balance = it.getCachedBalanceMaybe(account.id) ?: MonetaryAmount(BigDecimal(0), account.currency)
+
+            if (balance < amount) throw KataException.Companion.ExcessiveDraftAttempt()
+
+            it.clearBalanceCache(account.id)
+            it.recordEvent(account.id, AccountEvent.Companion.CashWithdrawal(Instant.now(), amount))
+        }
+    }
+
 
 }

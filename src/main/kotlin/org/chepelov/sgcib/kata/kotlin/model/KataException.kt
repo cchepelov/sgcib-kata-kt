@@ -18,6 +18,7 @@ sealed class KataException: Exception() {
         }
 
         class InvalidAccountCurrency(transactionCurrency: CurrencyCode, accountCurrency: CurrencyCode) : KataException()
+        class ExcessiveDraftAttempt(): KataException()
     }
 }
 

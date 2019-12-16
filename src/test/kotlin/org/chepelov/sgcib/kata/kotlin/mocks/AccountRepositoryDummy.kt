@@ -6,6 +6,7 @@ import org.chepelov.sgcib.kata.kotlin.model.AccountId
 import org.chepelov.sgcib.kata.kotlin.model.MonetaryAmount
 import org.chepelov.sgcib.kata.kotlin.services.repo.AccountRepository
 import org.chepelov.sgcib.kata.kotlin.services.repo.transactionally
+import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
@@ -13,6 +14,8 @@ import java.util.concurrent.locks.ReentrantLock
 class AccountRepositoryDummy(val accounts: AccountSide): AccountRepository {
 
     companion object {
+        private val logger = LoggerFactory.getLogger(javaClass)
+
         interface AccountSide {
             fun getAccount(accountId: AccountId): Account
         }
@@ -38,7 +41,7 @@ class AccountRepositoryDummy(val accounts: AccountSide): AccountRepository {
 
     override fun rollback() {
         txnLock.unlock()
-        throw UnsupportedOperationException("unsupported in a dummy" /* in production code it'd be soome Refused Bequest */)
+        logger.warn("doing a rollback — this is unsupported in a dummy")
     }
 
     override fun get(accountId: AccountId): Account {
