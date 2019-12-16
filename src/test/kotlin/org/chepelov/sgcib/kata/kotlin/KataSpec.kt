@@ -41,6 +41,7 @@ class KataSpec: WordSpec(), KoinTest {
 
         declareMock<AccountRepositoryDummy.Companion.AccountSide> {
             given(this.getAccount(AccountId("000123E"))).willReturn(Account(AccountId("000123E"), ClientId("mickey"), CurrencyCode.Companion.Eur))
+            given(this.getAccount(AccountId("000124U"))).willReturn(Account(AccountId("000124U"), ClientId("mickey"), CurrencyCode.Companion.Usd))
 
             /* given(this.get(any<AccountId>())).willAnswer(Answer<Account> {
                 val arg = it.getArgument<AccountId?>(0)
@@ -97,6 +98,44 @@ class KataSpec: WordSpec(), KoinTest {
                 }
             }
 
+            "attempting to deposit 35 euros into Mickey's dollar account, being Mickey" should {
+                "fail due to wrong currency" {
+                    shouldThrow<KataException.Companion.InvalidAccountCurrency> {
+                        val actingAsMickey = UserId("mickey")
+                        val account = accountManager.get(AccountId("000124U"), actingAsMickey)
+
+                        val oldBalance = accountManager.getBalance(account.id, actingAsMickey)
+                        oldBalance.currency shouldBe account.currency
+
+                        val quantity = BigDecimal(35)
+
+                        accountManager.depositCash(
+                            account.id,
+                            actingAsMickey,
+                            MonetaryAmount(quantity, CurrencyCode.Eur)
+                        )
+                    }
+                }
+            }
+
+            "attempting to deposit 40 dollars into Mickey's dollar account, being Donald" should {
+                "fail due to being denied" {
+                    shouldThrow<KataException.Companion.AccessDenied.Companion.User> {
+                        val actingAsDonald = UserId("donald")
+
+                        val quantity = BigDecimal(35)
+
+                        accountManager.depositCash(
+                            AccountId("000124U"), // this belongs to Mickey !!!
+                            actingAsDonald,
+                            MonetaryAmount(quantity, CurrencyCode.Usd)
+                        )
+                    }
+                }
+            }
+
+            // Eventually, Mickey should be able to deposit onto Pluto's account, as Mickey has Power of Attorney over Pluto's accounts
+            // (not US1, but in a probable spinoff story)
 
 
         }
