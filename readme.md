@@ -7,6 +7,11 @@ run the tests, preferably in IDEA. Otherwise,
 gradle test
 ``` 
 
+## What's in it here?
+
+The user-facing (colleague-facing) API  
+
+
 ## Notes and disclosures
 
 * This is my "hello world" in Kotlin.

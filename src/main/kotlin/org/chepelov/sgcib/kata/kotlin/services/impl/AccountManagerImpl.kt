@@ -1,13 +1,16 @@
-package org.chepelov.sgcib.kata.kotlin.services
+package org.chepelov.sgcib.kata.kotlin.services.impl
 
 import org.chepelov.sgcib.kata.kotlin.model.*
+import org.chepelov.sgcib.kata.kotlin.services.AccountManager
+import org.chepelov.sgcib.kata.kotlin.services.ClientManager
 import org.chepelov.sgcib.kata.kotlin.services.repo.AccountRepository
 import org.chepelov.sgcib.kata.kotlin.services.repo.transactionally
 import java.lang.IllegalStateException
 import java.math.BigDecimal
 import java.time.Instant
 
-class AccountManagerImpl(val clientManager: ClientManager, val accountRepository: AccountRepository): AccountManager {
+class AccountManagerImpl(val clientManager: ClientManager, val accountRepository: AccountRepository):
+    AccountManager {
     override fun get(accountId: AccountId, authentifiedAs: UserId): Account {
         val account = accountRepository.get(accountId)
         clientManager.get(account.owner, authentifiedAs) // this validates the caller may access the account
