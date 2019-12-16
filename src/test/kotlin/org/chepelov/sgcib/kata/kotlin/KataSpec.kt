@@ -1,8 +1,10 @@
 package org.chepelov.sgcib.kata.kotlin
 
+import io.kotlintest.should
+import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import io.kotlintest.specs.WordSpec
-import org.chepelov.sgcib.kata.kotlin.mocks.AccountRepositorDummy
+import org.chepelov.sgcib.kata.kotlin.mocks.AccountRepositoryDummy
 import org.chepelov.sgcib.kata.kotlin.mocks.ClientRepositoryDummy
 import org.chepelov.sgcib.kata.kotlin.model.*
 import org.chepelov.sgcib.kata.kotlin.services.AccountManager
@@ -17,13 +19,14 @@ import org.koin.test.inject
 import org.koin.test.mock.declareMock
 import org.mockito.ArgumentMatchers.any
 import org.mockito.BDDMockito.given
-import org.mockito.stubbing.Answer
+import java.math.BigDecimal
 
 class KataSpec: WordSpec(), KoinTest {
 
     val mocks = module() {
         single { ClientRepositoryDummy() as ClientRepository }
-        single { AccountRepositorDummy() as AccountRepository }
+        single { AccountRepositoryDummy.Companion.AccountSideDumy() as AccountRepositoryDummy.Companion.AccountSide }
+        single { AccountRepositoryDummy(get()) as AccountRepository }
     }
 
     val clientManager: ClientManager by inject()
@@ -36,13 +39,14 @@ class KataSpec: WordSpec(), KoinTest {
             given(this.get(ClientId("scrooge"))).willThrow(KataException.Companion.NotFound.Companion.Client(ClientId("scrooge") ))
         }
 
-        declareMock<AccountRepository> {
-            given(this.get(AccountId("000123E"))).willReturn(Account(AccountId("00123E"), ClientId("mickey"), CurrencyCode.Companion.Eur))
+        declareMock<AccountRepositoryDummy.Companion.AccountSide> {
+            given(this.getAccount(AccountId("000123E"))).willReturn(Account(AccountId("000123E"), ClientId("mickey"), CurrencyCode.Companion.Eur))
+
             /* given(this.get(any<AccountId>())).willAnswer(Answer<Account> {
                 val arg = it.getArgument<AccountId?>(0)
                 throw KataException.Companion.NotFound.Companion.Account(arg ?: AccountId("<null>"))
             })
-             */ // fails to init for some reason ("Java-Kotlin interop is perfect", but truth in advertising)
+             */ // fails to init, as ("Java-Kotlin interop" shouldBe "perfect"), but truth in advertising
         }
 
         ("preliminaries: basic client accesses") When {
@@ -76,8 +80,20 @@ class KataSpec: WordSpec(), KoinTest {
 
             "depositing 35 euros into Mickey's euro account, being Mickey" should {
                 "succeed" {
-                    val account = accountManager.get(AccountId("000123E"), UserId("mickey"))
+                    val actingAsMickey = UserId("mickey")
+                    val account = accountManager.get(AccountId("000123E"), actingAsMickey)
 
+                    val oldBalance = accountManager.getBalance(account.id, actingAsMickey)
+                    oldBalance.currency shouldBe account.currency
+
+                    val quantity = BigDecimal(35)
+
+                    accountManager.depositCash(account.id, actingAsMickey, MonetaryAmount(quantity, CurrencyCode.Eur))
+                    val newBalance = accountManager.getBalance(account.id, actingAsMickey)
+
+                    newBalance.currency shouldBe oldBalance.currency
+
+                    (newBalance.amount - oldBalance.amount) shouldBe quantity
                 }
             }
 

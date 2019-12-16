@@ -16,6 +16,8 @@ sealed class KataException: Exception() {
                 data class User(val clientId: ClientId, override val userId: UserId): AccessDenied()
             }
         }
+
+        class InvalidAccountCurrency(transactionCurrency: CurrencyCode, accountCurrency: CurrencyCode) : KataException()
     }
 }
 
