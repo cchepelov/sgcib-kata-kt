@@ -22,6 +22,10 @@ goods without actually dealing with persistence.
 
 * This is my "hello world" in Kotlin. Still lacking a bit on the idiomatic
 side of things, would expect to build on the team's culture first.
+    * in particular one thing I'm used to do in scala is to tuck various 
+    things (e.g. ADT subclasses, etc.) within some class' companion.
+    Here in Kotlin, it seems I'm writing the *Companion* keyword a little
+    too frequently…  
 
 * I already took this kata in scala *six* days ago and went the whole ZIO 
 way there https://github.com/cchepelov/sgcib-kata
